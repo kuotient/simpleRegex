@@ -5,8 +5,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import scrolledtext, Menu
 from tkinter import filedialog as fd
-from simpleRegex.LanguageResources import I18N
-from simpleRegex.Callbacks import Callbacks
+from LanguageResources import I18N
+from Callbacks import Callbacks
 
 from os import path, makedirs
 
@@ -54,6 +54,8 @@ class ScrollInput(ScrollBase):
 
 class ScrollOutput(ScrollBase):
     def __init__(self):
+
+
         super().__init__()
         self.width = 80
         self.height = 20
@@ -66,7 +68,7 @@ scrollTypes = [ScrollInput, ScrollOutput]
 class SimpleRegex():
     def __init__(self):
         self.main = tk.Tk()
-        self.i18n = I18N('en')
+        self.i18n = I18N('kr')
         self.callBacks = Callbacks(self)
         self.main.title(self.i18n.title)
 
@@ -78,65 +80,7 @@ class SimpleRegex():
         self.createWidgets()
         self.callBacks.defaultFileEntries()
 
-        self.main.protocol("WM_DELETE_WINDOW", self.callBacks._msgBoxExit)
-
-    # def create_thread(self):
-    #     from threading import Thread
-    #     self.run_thread = Thread(target=)
-
-    # def defaultFileEntries(self):
-    #     self.loadBrowseEntry.delete(0, tk.END)
-    #     self.loadBrowseEntry.insert(0, fDir)
-    #     if len(fDir) > 36:
-    #         #             self.fileEntry.config(width=len(fDir) + 3)
-    #         self.loadBrowseEntry.config(width=35)  # limit width to adjust GUI
-    #         self.loadBrowseEntry.config(state='readonly')
-    #
-    #     self.saveBrowseEntry.delete(0, tk.END)
-    #     self.saveBrowseEntry.insert(0, saveDir)
-    #     if len(saveDir) > 36:
-    #         #             self.netwEntry.config(width=len(netDir) + 3)
-    #         self.saveBrowseEntry.config(width=35)  # limit width to adjust GUI
-    #
-    # # Display a Exit Box
-    # def _msgBoxExit(self):
-    #     answer = msg.askyesnocancel(self.i18n.exit, self.i18n.exitDescription)
-    #     if answer is True:
-    #         self.main.quit()
-    #         self.main.destroy()
-    #         exit()
-    #
-    # # Display an 'About' message Box
-    # def _msgBoxAbout(self):
-    #     global VERSION
-    #     msg.showinfo(self.i18n.about, self.i18n.aboutTitle + VERSION + self.i18n.aboutDescription)
-    #
-    # def _run(self):
-    #     txt2 = self.scrlInputText.get("1.0", tk.END)
-    #     print(txt2)
-    #     self.scrlOutputText.insert(tk.INSERT, txt2 + '\n')
-    #
-    # def _runProgressBar(self):
-    #     self.progressBar['maximum'] = 100
-    #     for i in range(101):
-    #         sleep(0.05)
-    #         self.progressBar['value'] = i
-    #         self.progressBar.update()
-    #     self.progressBar['value'] = 0
-    #
-    #
-    # def _getFileName(self):
-    #     fName = fd.askopenfilename(parent=self.main, initialdir=fDir, filetypes=ftypes)
-    #     self.loadBrowseEntry.config(state='enabled')
-    #     self.loadBrowseEntry.delete(0, tk.END)
-    #     self.loadBrowseEntry.insert(0, fName)
-    #
-    #     if len(fName) > 36:
-    #         self.loadBrowseEntry.config(width=35)
-    #
-    # def _saveFile(self):
-    #     print('HELLO')
-
+        # self.main.protocol("WM_DELETE_WINDOW", self.callBacks._msgBoxExit)
 
     # ---------------------
     # widget Control
@@ -151,12 +95,23 @@ class SimpleRegex():
         # Add Tab items
         tab1 = ttk.Frame(tabControl)
         tabControl.add(tab1, text=self.i18n.textEdit)
+        tab3 = ttk.Frame(tabControl)
+        tabControl.add(tab3, text=self.i18n.fileEdit)
         tab2 = ttk.Frame(tabControl)
-        tabControl.add(tab2, text=self.i18n.fileEdit)
+        tabControl.add(tab2, text=self.i18n.settings)
 
         # Locate Tabs
         tabControl.pack(expand=1, fill='both')
         # tabControl.pack()
+
+        # Create Global buttons
+        self.runB = ttk.Button(self.main, text="RUN", command=self.callBacks._preprocess_files)
+        self.runB.pack(side='right')
+
+        # Create status label
+        self.status = 'Idle'
+        self.statusLabel = ttk.Label(self.main, text= 'Current status: ' + self.status)
+        self.statusLabel.pack(side='bottom', anchor='w', padx=1)
 
         # TAB1
         #==============
@@ -166,26 +121,33 @@ class SimpleRegex():
         self.frame = ttk.LabelFrame(tab1, text=' 문장 변환 ')
         self.frame.grid(column=0, row=0, padx=8, pady=4, sticky='W')
 
-        self.optionsFrame = ttk.LabelFrame(self.frame, text=' Options ')
-        self.optionsFrame.grid(column=1, row=1, padx=8, pady=4, sticky='E')
+        self.optionsFrame = ttk.LabelFrame(self.frame, text='')
+        self.optionsFrame.grid(column=1, row=0, padx=8, pady=1, sticky='E', rowspan=2)
 
         #Add Label items
         self.inputLabel = ttk.Label(self.frame, text='Input')
         self.inputLabel.grid(column=0, row=0, padx=8, sticky='W')
 
         self.outputLabel = ttk.Label(self.frame, text='Result')
-        self.outputLabel.grid(column=0, row=2, padx=8, sticky='W')
+        self.outputLabel.grid(column=0, row=2, padx=8, sticky='W', columnspan=2)
 
-        self.optionTest = ttk.Label(self.optionsFrame, text='Test')
-        self.optionTest.grid(column=0, row=0, sticky='W')
-
+        # self.optionTest = ttk.Label(self.optionsFrame, text='Test')
+        # self.optionTest.grid(column=0,height=10,
 
         #==============
         # Buttons
         #==============
-        self.runButton = ttk.Button(self.frame, text="RUN", command=self.callBacks._run)
-        self.runButton.grid(column=1, row=0, sticky='E')
+        # There's an error that can't use height parameter in Button command.
+        self.runButton = ttk.Button(self.optionsFrame, text="RUN", command=self.callBacks._run)
+        # Use grid's 'ipady' parameter instead.
+        self.runButton.grid(column=0, row=0, sticky='E', ipadx=18, ipady=10)
         # self.runButton.configure(state='disabled')
+
+        self.stopButton = ttk.Button(self.optionsFrame, text='STOP', command=self.callBacks._run)
+        self.stopButton.grid(column=0, row=1, sticky='E',ipadx=18, ipady=10)
+
+        self.resetButton = ttk.Button(self.optionsFrame, text='RESET', command=self.callBacks._run)
+        self.resetButton.grid(column=0, row=2, sticky='E', ipadx=18, ipady=10)
 
         # self.reset
 
@@ -193,12 +155,12 @@ class SimpleRegex():
         #==============
         # CheckButtons
         #==============
-        self.caseChVar = tk.IntVar()
-        self.caseCheck = tk.Checkbutton(self.optionsFrame,
-                                        text='Case Convertor',
-                                        variable=self.caseChVar,
-                                        state='normal')
-        self.caseCheck.grid(column=0, row=1, sticky=tk.W)
+        # self.caseChVar = tk.IntVar()
+        # self.caseCheck = tk.Checkbutton(self.optionsFrame,
+        #                                 text='Case Convertor',
+        #                                 variable=self.caseChVar,
+        #                                 state='normal')
+        # self.caseCheck.grid(column=0, row=1, sticky=tk.W)
 
         #===============
         # Radio Buttons
@@ -210,7 +172,7 @@ class SimpleRegex():
         self.createScrolls()
 
 
-        # TAB2a
+        # TAB2
         #==============
         # Labels
         #==============
@@ -238,10 +200,10 @@ class SimpleRegex():
         # Buttons
         # ==============
         #Create button
-        self.loadButton = ttk.Button(self.mngFilesFrame, text=self.i18n.browse, width=12, command=self.callBacks._getFileName)
+        self.loadButton = ttk.Button(self.mngFilesFrame, text=self.i18n.browse, width=12, command=self.callBacks._get_file_name)
         self.loadButton.grid(column=0, row=0, sticky=tk.W)
 
-        self.saveButton = ttk.Button(self.mngFilesFrame, text=self.i18n.save, width=12, command=self.callBacks._saveFile)
+        self.saveButton = ttk.Button(self.mngFilesFrame, text=self.i18n.save, width=12, command=self.callBacks._save_file)
         self.saveButton.grid(column=0, row=1, sticky=tk.E)
 
 
@@ -346,10 +308,47 @@ class SimpleRegex():
         self.progressBar = ttk.Progressbar(tab2, orient='horizontal', length=370, mode='determinate')
         self.progressBar.grid(column=0,row=2, columnspan=2, padx=8, pady=4, sticky=tk.W)
 
+        ttk.Button(tab2, text='Run ProgressBar', command=self.callBacks._run_progressbar).grid(column=0, row=3,padx=8,pady=4)
 
-        ttk.Button(tab2, text='Run ProgressBar', command=self.callBacks._runProgressBar).grid(column=0, row=3,padx=8,pady=4)
+        # Tab3
+        #===============
+        # Labels
+        #===============
 
+        # Create LabelFrames
+        self.filesFrame = ttk.LabelFrame(tab3, text= self.i18n.mngFile)
+        self.filesFrame.grid(column=0, row=0, padx=8, pady=4, ipadx=8, ipady=4, sticky='W')
+        # self.scrollFrame = ttk.LabelFrame(self.filesFrame, text='')
+        # self.scrollFrame.grid(column=0, row=0, sticky='nsew', columnspan=2)
 
+        #===============
+        # Treeviews
+        #===============
+
+        # Create Treeview with scrollbar
+        self.fileTree = ttk.Treeview(self.filesFrame, columns=['name', 'format', 'path'], show='headings')
+        vsb = ttk.Scrollbar(self.filesFrame, orient="vertical", command=self.fileTree.yview)
+        hsb = ttk.Scrollbar(self.filesFrame, orient="horizontal", command=self.fileTree.xview)
+        self.fileTree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+        self.fileTree.grid(column=0, row=0, sticky='nsew')
+        vsb.grid(column=1, row=0, sticky='ns')
+        hsb.grid(column=0, row=1, sticky='ew')
+
+        # Create heading of Treeview
+        self.fileTree.heading('name', text='Name', anchor=tk.W)
+        self.fileTree.heading('format', text='Format', anchor=tk.W)
+        self.fileTree.heading('path', text='File path', anchor=tk.W)
+
+        self.scrollFileDir = tk.StringVar()
+
+        #===============
+        # Buttons
+        #===============
+        self.addNewFileButton = ttk.Button(tab3, text=self.i18n.addNewFile, command=self.callBacks._get_file_name)
+        self.addNewFileButton.grid(column =0, row=1, pady=6, ipadx=20, ipady=4, sticky='e')
+
+        self.deleteFileButton = ttk.Button(tab3, text=self.i18n.delete, command=self.callBacks._remove_file)
+        self.deleteFileButton.grid(column=1, row=1, pady=6, padx=10, ipadx=8, ipady=4, sticky=tk.E)
 
 
         #===============
@@ -365,11 +364,11 @@ class SimpleRegex():
         fileMenu.add_command(label=self.i18n.new)
         fileMenu.add_command(label=self.i18n.settingsMenu)
         fileMenu.add_separator()
-        fileMenu.add_command(label=self.i18n.exit, command= self.callBacks._msgBoxExit)
+        fileMenu.add_command(label=self.i18n.exit, command= self.callBacks._display_msg_exit)
         menuBar.add_cascade(label=self.i18n.file, menu=fileMenu)
 
         helpMenu = Menu(menuBar, tearoff=0)
-        helpMenu.add_command(label=self.i18n.about, command = self.callBacks._msgBoxAbout)
+        helpMenu.add_command(label=self.i18n.about, command = self.callBacks._display_msg_about)
         menuBar.add_cascade(label=self.i18n.help, menu=helpMenu)
 
 
@@ -391,7 +390,7 @@ class SimpleRegex():
                                                        width=w,
                                                        height=h,
                                                        wrap=tk.WORD)
-        self.scrlInputText.grid(column=0, row=1, padx= pW, pady= pH, sticky='w', columnspan=1)
+        self.scrlInputText.grid(column=0, row=1, padx= pW, pady= pH, sticky='w')
 
 
         # Create an Output ScrollText item
@@ -403,7 +402,7 @@ class SimpleRegex():
                                                         width=w,
                                                         height=h,
                                                         wrap=tk.WORD)
-        self.scrlOutputText.grid(column=0, row=3, padx= pW, pady= pH, sticky='w', columnspan=3)
+        self.scrlOutputText.grid(column=0, row=3, padx= pW, pady= pH, sticky='w', columnspan=2)
 
         self.scrlInputText.focus() # Place cursor into Input text
 

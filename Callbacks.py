@@ -22,7 +22,7 @@ class Callbacks():
             self.srx.saveBrowseEntry.config(width=35)  # limit width to adjust GUI
 
     # Display a Exit Box
-    def _msgBoxExit(self):
+    def _display_msg_exit(self):
         answer = msg.askyesnocancel(self.srx.i18n.exit, self.srx.i18n.exitDescription)
         if answer is True:
             self.srx.main.quit()
@@ -30,7 +30,7 @@ class Callbacks():
             exit()
 
     # Display an 'About' message Box
-    def _msgBoxAbout(self):
+    def _display_msg_about(self):
         global VERSION
         msg.showinfo(self.srx.i18n.about, self.srx.i18n.aboutTitle + self.srx.VERSION + self.srx.i18n.aboutDescription)
 
@@ -39,7 +39,45 @@ class Callbacks():
         print(txt2)
         self.srx.scrlOutputText.insert(tk.INSERT, txt2 + '\n')
 
-    def _runProgressBar(self):
+    def _preprocess_files(self):
+        # Collect File Directory to list form.
+        filelist = []
+        if not self.srx.fileTree.get_children():
+            msg.showerror('Error', 'You have to put at least one file to proceed.')
+        for child in self.srx.fileTree.get_children():
+            filelist.append(self.srx.fileTree.item(child)['values'][2])
+
+        # Regex
+        def regex_lines(lines):
+            import re
+            patterns = '[^ ㄱ-ㅣ가-힣]+'
+            reObj = re.compile(patterns)
+            for line in lines:
+                print(reObj.sub('', line))
+
+
+        from pathlib import Path
+        for file in filelist:
+            print(file)
+            path = Path(file)
+            try:
+                with path.open() as f:
+                    lines = f.readlines()
+                    regex_lines(lines)
+                    # for line in lines:
+                    #     print(line)
+
+            except UnicodeDecodeError:
+                with path.open(encoding='UTF8') as f:
+                    lines = f.readlines()
+                    regex_lines(lines)
+
+            except FileNotFoundError as e:
+                print(e)
+
+
+
+    def _run_progressbar(self):
         self.srx.progressBar['maximum'] = 100
         from time import sleep
         for i in range(101):
@@ -48,15 +86,20 @@ class Callbacks():
             self.srx.progressBar.update()
         self.srx.progressBar['value'] = 0
 
+    def _get_file_name(self):
 
-    def _getFileName(self):
-        fName = fd.askopenfilename(parent=self.srx.main, initialdir=self.srx.fDir, filetypes=self.srx.ftypes)
-        self.srx.loadBrowseEntry.config(state='enabled')
-        self.srx.loadBrowseEntry.delete(0, tk.END)
-        self.srx.loadBrowseEntry.insert(0, fName)
+        fileDirs = fd.askopenfilenames(parent=self.srx.main, initialdir=self.srx.fDir, filetypes=self.srx.ftypes)
+        from pathlib import Path
+        for fileDir in fileDirs:
+            self.srx.fileTree.insert('', 'end', values=(Path(fileDir).stem, Path(fileDir).suffix, fileDir))
 
-        if len(fName) > 36:
-            self.srx.loadBrowseEntry.config(width=35)
+        # if len(fName) > 36:
+        #     self.srx.loadBrowseEntry.config(width=35)
 
-    def _saveFile(self):
+    def _remove_file(self):
+        selected_items = self.srx.fileTree.selection()
+        for item in selected_items:
+            self.srx.fileTree.delete(item)
+
+    def _save_file(self):
         print('HELLO')

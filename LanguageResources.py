@@ -37,11 +37,14 @@ class I18N():
         self.file = '파일'
         self.help = '도움말'
 
+        self.addNewFile = '파일 추가하기...'
+        self.delete = '삭제'
+
     def resourceLanguageEnglish(self):
         self.title = "SimpleRegex"
         self.exit = 'Exit'
-        self.textEdit = 'Text Edit'
-        self.fileEdit = 'File Edit'
+        self.textEdit = 'Edit Texts'
+        self.fileEdit = 'Edit Files'
         self.exitDescription = 'Are you sure you want to exit?'
 
         self.about = 'About'
@@ -69,3 +72,7 @@ class I18N():
         self.settingsMenu ='Settings'
         self.file = 'File'
         self.help = 'Help'
+
+
+        self.addNewFile = 'Add files...'
+        self.delete = 'Delete'
